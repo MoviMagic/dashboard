@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-around;
+            background-color: #333;
+            border-radius: 8px;
+        }
+
+        nav ul li {
+            margin: 0;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+        }
+
+        nav ul li a:hover {
+            background-color: #575757;
+            border-radius: 4px;
+        }
+
+        main {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+
+        form input, form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IPTV Admin Panel</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#users">Manage Users</a></li>
+                <li><a href="#resellers">Manage Resellers</a></li>
+                <li><a href="#credits">Manage Credits</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Dashboard Section -->
+            <section id="dashboard">
+                <h2>Dashboard</h2>
+                <p>Welcome to the IPTV Admin Panel. Use the navigation to manage users and resellers.</p>
+            </section>
+
+            <!-- Manage Users Section -->
+            <section id="users">
+                <h2>Manage Users</h2>
+                <button onclick="openUserForm()">Create User</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Expiration Date</th>
+                            <th>Devices Used</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list">
+                        <!-- User rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Manage Resellers Section -->
+            <section id="resellers">
+                <h2>Manage Resellers</h2>
+                <button onclick="openResellerForm()">Create Reseller</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Credits</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reseller-list">
+                        <!-- Reseller rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Manage Credits Section -->
+            <section id="credits">
+                <h2>Manage Credits</h2>
+                <form id="credit-form">
+                    <label for="reseller-select">Select Reseller:</label>
+                    <select id="reseller-select">
+                        <!-- Reseller options will be populated dynamically -->
+                    </select>
+                    <label for="credit-amount">Credits to Add:</label>
+                    <input type="number" id="credit-amount" min="1" required>
+                    <button type="button" onclick="addCredits()">Add Credits</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- User Form Modal -->
+    <div id="user-form-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserForm()">&times;</span>
+            <h2>Create User</h2>
+            <form id="user-form">
+                <label for="user-name">Name:</label>
+                <input type="text" id="user-name" required>
+
+                <label for="user-email">Email:</label>
+                <input type="email" id="user-email" required>
+
+                <label for="user-password">Password:</label>
+                <input type="password" id="user-password" required>
+
+                <label for="user-expiration">Expiration Date:</label>
+                <input type="date" id="user-expiration" required>
+
+                <button type="button" onclick="createUser()">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reseller Form Modal -->
+    <div id="reseller-form-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeResellerForm()">&times;</span>
+            <h2>Create Reseller</h2>
+            <form id="reseller-form">
+                <label for="reseller-name">Name:</label>
+                <input type="text" id="reseller-name" required>
+
+                <label for="reseller-email">Email:</label>
+                <input type="email" id="reseller-email" required>
+
+                <label for="reseller-credits">Initial Credits:</label>
+                <input type="number" id="reseller-credits" min="0" required>
+
+                <button type="button" onclick="createReseller()">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDhPRVu8n_pZQzJPVWNFlJonmj5KEYsF10",
+            authDomain: "movimagic.firebaseapp.com",
+            projectId: "movimagic",
+            storageBucket: "movimagic.appspot.com",
+            messagingSenderId: "518388279864",
+            appId: "1:518388279864:web:a6f699391ec5bb627c14cd",
+            measurementId: "G-GG65HJV2T6",
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
+        // Open and close modals
+        function openUserForm() {
+            document.getElementById('user-form-modal').style.display = 'flex';
+        }
+
+        function closeUserForm() {
+            document.getElementById('user-form-modal').style.display = 'none';
+        }
+
+        function openResellerForm() {
+            document.getElementById('reseller-form-modal').style.display = 'flex';
+        }
+
+        function closeResellerForm() {
+            document.getElementById('reseller-form-modal').style.display = 'none';
+        }
+
+        // Fetch users from Firestore and populate the table
+        function fetchUsers() {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = '';
+
+            db.collection('users').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    const userRow = document.createElement('tr');
+
+                    userRow.innerHTML = `
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.password || 'N/A'}</td>
+                        <td>${user.expiration || 'N/A'}</td>
+                        <td>${user.devices || '0 Devices'}</td>
+                        <td><button onclick="deleteRow(this)">Delete</button></td>
+                    `;
+
+                    userList.appendChild(userRow);
+                });
+            }).catch((error) => {
+                console.error('Error fetching users: ', error);
+            });
+        }
+
+        // Fetch users when the page loads
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+
+        // Delete row function
+        function deleteRow(button) {
+            button.parentElement.parentElement.remove();
+        }
+    </script>
+</body>
+</html>
