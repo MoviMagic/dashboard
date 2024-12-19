@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPTV Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -92,18 +93,15 @@
             background-color: #f1f1f1;
         }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+        .action-icons i {
+            margin: 0 5px;
             cursor: pointer;
+            color: #4CAF50;
             font-size: 16px;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .action-icons i:hover {
+            color: #45a049;
         }
 
         .modal {
@@ -156,8 +154,6 @@
             border-radius: 4px;
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
@@ -293,8 +289,8 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // Open and close modals
         function openUserForm() {
@@ -324,12 +320,19 @@
                     const userRow = document.createElement('tr');
 
                     userRow.innerHTML = `
-                        <td>${user.name}</td>
+                        <td>${user.name || 'N/A'}</td>
                         <td>${user.email}</td>
                         <td>${user.password || 'N/A'}</td>
                         <td>${user.expiration || 'N/A'}</td>
                         <td>${user.devices || '0 Devices'}</td>
-                        <td><button onclick="deleteRow(this)">Delete</button></td>
+                        <td class="action-icons">
+                            <i class="fas fa-edit" title="Edit" onclick="editUser('${doc.id}')"></i>
+                            <i class="fas fa-sync-alt" title="Renew 1 Month" onclick="renewUser('${doc.id}', 1)"></i>
+                            <i class="fas fa-sync-alt" title="Renew 3 Months" onclick="renewUser('${doc.id}', 3)"></i>
+                            <i class="fas fa-sync-alt" title="Renew 6 Months" onclick="renewUser('${doc.id}', 6)"></i>
+                            <i class="fas fa-sync-alt" title="Renew 12 Months" onclick="renewUser('${doc.id}', 12)"></i>
+                            <i class="fas fa-trash" title="Delete" onclick="deleteUser('${doc.id}')"></i>
+                        </td>
                     `;
 
                     userList.appendChild(userRow);
@@ -342,9 +345,17 @@
         // Fetch users when the page loads
         document.addEventListener('DOMContentLoaded', fetchUsers);
 
-        // Delete row function
-        function deleteRow(button) {
-            button.parentElement.parentElement.remove();
+        // Placeholder functions for actions
+        function editUser(userId) {
+            alert(`Edit user with ID: ${userId}`);
+        }
+
+        function renewUser(userId, months) {
+            alert(`Renew user with ID: ${userId} for ${months} months`);
+        }
+
+        function deleteUser(userId) {
+            alert(`Delete user with ID: ${userId}`);
         }
     </script>
 </body>
